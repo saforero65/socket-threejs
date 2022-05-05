@@ -1,0 +1,20 @@
+{
+  "name": "08_websocket-server",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "node app.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^16.0.0",
+    "event-emitter-es6": "^1.1.5",
+    "express": "^4.17.2",
+    "socket.io": "^4.4.1",
+    "three": "^0.140.0"
+  }
+}
