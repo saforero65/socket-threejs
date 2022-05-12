@@ -6,7 +6,7 @@ const socketController = async (socket = new Socket(), io) => {
   console.log(
     "Usuario id:  " +
       socket.id +
-      " CONECTADO APA, en el momento hay: " +
+      " \nCONECTADO APA, en el momento hay: " +
       io.engine.clientsCount +
       " usuarios conectados"
   );
@@ -32,8 +32,16 @@ const socketController = async (socket = new Socket(), io) => {
   );
 
   socket.on("move", (pos) => {
-    clients[socket.id].position = pos;
-    io.sockets.emit("userPositions", clients);
+    // clients[socket.id].position = pos;
+    console.log(pos);
+    io.sockets.emit(
+      "userPositionsVoxels",
+      io.engine.clientsCount,
+      socket.id,
+      Object.keys(clients),
+      pos
+    );
+    console.log("puso un voxel", socket.id);
   });
   socket.on("disconnect", () => {
     delete clients[socket.id];
