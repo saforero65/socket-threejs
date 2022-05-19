@@ -31,7 +31,8 @@ const socketController = async (socket = new Socket(), io) => {
     Object.keys(clients)
   );
 
-  socket.on("move", (pos) => {
+  socket.on("move", (pos, color) => {
+    console.log(color);
     // clients[socket.id].position = pos;
     console.log(pos);
     io.to(clients[socket.id].room).emit(
@@ -39,7 +40,8 @@ const socketController = async (socket = new Socket(), io) => {
       io.engine.clientsCount,
       socket.id,
       Object.keys(clients),
-      pos
+      pos,
+      color
     );
     console.log("puso un voxel", socket.id);
   });
@@ -112,7 +114,22 @@ const socketController = async (socket = new Socket(), io) => {
       } else {
         clients[socket.id] = req;
         socket.join(req.room);
-        io.to(clients[socket.id].room).emit("actualizar", socket.id);
+        let list = [];
+        var room = io.of("/").adapter.rooms.forEach((e) => {
+          e.forEach((j) => {
+            list.push(clients[j]);
+          });
+        });
+        var unicosSala = [...new Set(list)];
+
+        // console.log(room);
+        console.log("cliente lista", unicosSala);
+        io.sockets.in(req.room).emit("usuariosConectados", unicosSala);
+        socket.broadcast.to(req.room).emit("message", {
+          username: "System",
+          text: req.username + " has joined!",
+          // timestamp: moment().valueOf(),
+        });
 
         callback({
           nameAvailable: true,
@@ -124,6 +141,10 @@ const socketController = async (socket = new Socket(), io) => {
         error: "Hey, please fill out the form!",
       });
     }
+  });
+  socket.on("message", function (message) {
+    // message.timestamp = moment().valueOf();
+    io.to(clients[socket.id].room).emit("message", message);
   });
 };
 
