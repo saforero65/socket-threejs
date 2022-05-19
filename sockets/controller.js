@@ -99,9 +99,9 @@ const socketController = async (socket = new Socket(), io) => {
       Object.keys(clients).forEach((socketId) => {
         var userInfo = clients[socketId];
         console.log("req", req.username);
-        if (userInfo.username.toUpperCase() === req.username.toUpperCase()) {
-          nameTaken = true;
-        }
+        // if (userInfo.username.toUpperCase() === req.username.toUpperCase()) {
+        //   nameTaken = true;
+        // }
       });
 
       if (nameTaken) {
