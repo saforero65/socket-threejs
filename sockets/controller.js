@@ -31,7 +31,7 @@ const socketController = async (socket = new Socket(), io) => {
     Object.keys(clients)
   );
 
-  socket.on("move", (pos, color) => {
+  socket.on("move", (pos, color, mesh) => {
     console.log(color);
     // clients[socket.id].position = pos;
     console.log(pos);
@@ -41,7 +41,8 @@ const socketController = async (socket = new Socket(), io) => {
       socket.id,
       Object.keys(clients),
       pos,
-      color
+      color,
+      mesh
     );
     console.log("puso un voxel", socket.id);
   });
@@ -71,7 +72,21 @@ const socketController = async (socket = new Socket(), io) => {
   });
 
   socket.on("disconnect", () => {
-    delete clients[socket.id];
+    var userData = clients[socket.id];
+    console.log("userData", userData);
+    if (typeof userData !== "undefined") {
+      socket.leave(clients[socket.id]);
+      io.to(userData.room).emit("quitarUsuario", userData.image);
+      io.to(userData.room).emit("message", {
+        username: "System",
+        text: userData.username + " se fue!",
+        // timestamp: moment().valueOf()
+      });
+
+      delete clients[socket.id];
+    }
+
+    // delete clients[socket.id];
     io.sockets.emit(
       "userDisconnected",
       io.engine.clientsCount,
@@ -125,11 +140,6 @@ const socketController = async (socket = new Socket(), io) => {
         // console.log(room);
         console.log("cliente lista", unicosSala);
         io.sockets.in(req.room).emit("usuariosConectados", unicosSala);
-        socket.broadcast.to(req.room).emit("message", {
-          username: "System",
-          text: req.username + " has joined!",
-          // timestamp: moment().valueOf(),
-        });
 
         callback({
           nameAvailable: true,
@@ -142,9 +152,23 @@ const socketController = async (socket = new Socket(), io) => {
       });
     }
   });
-  socket.on("message", function (message) {
+
+  socket.on("necesitoActulizarme", (usuario) => {
+    // message.timestamp = moment().valueOf();
+    io.to(clients[socket.id].room).emit("pasemeElArray", usuario);
+  });
+
+  socket.on("message", (message) => {
+    console.log(message);
     // message.timestamp = moment().valueOf();
     io.to(clients[socket.id].room).emit("message", message);
+  });
+
+  socket.on("historial", (array, user) => {
+    // message.timestamp = moment().valueOf();
+    console.log("byuenas");
+    // console.log(array);
+    io.to(clients[socket.id].room).emit("actualziarNuevoUsuario", array);
   });
 };
 
