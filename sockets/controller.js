@@ -170,6 +170,11 @@ const socketController = async (socket = new Socket(), io) => {
     // console.log(array);
     io.to(clients[socket.id].room).emit("actualziarNuevoUsuario", array);
   });
+
+  socket.on("resetScena", (e) => {
+    console.log("recibio el server reset escena", e);
+    io.to(clients[socket.id].room).emit("borrarScena", e);
+  });
 };
 
 module.exports = {
